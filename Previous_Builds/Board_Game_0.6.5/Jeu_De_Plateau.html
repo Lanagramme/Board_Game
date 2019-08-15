@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Board Game</title>
+	<link rel="stylesheet" type="text/css" href="Jeu_De_Plateau_style.css">
+</head>
+<body>
+
+	<div id="menu">
+		    <div class="a">
+					<div class="d">
+						<div class="e c" onClick="g(0, 'c', 'l')">Player 1</div>
+						<div class="c" onClick="g(1, 'c', 'l')">Player 2</div>
+						<div class="c" onClick="g(2, 'c', 'l')">Player 3</div>
+					</div>
+					<div class="k l">
+                        <label>Equipe :</label>
+					    <input  id="tour" type="text" value="rouge"/> <br/> <br/>
+						<button onClick="h(1)">Move 1</button> <br> <br>
+						<button onClick="h(2)">Move 2</button> <br> <br>
+						<button onClick="h(3)">Move 3</button> <br> <br>
+						<button onClick="f('active'); f('range');">Clear Path</button> <br> <br>
+						<button id="btnTour" onClick="tour()">Fin du Tour</button> <br> <br>
+					</div>
+					<div class="l"><p>Place holder</p></div>
+					<div class="l"><p>En construction</p></div>
+				</div>
+	</div>
+
+	<fieldset>
+		Nbr de colones :
+		<input type="text" id="col" required>
+		Nbr de lignes :
+		<input type="text" id="row" required>
+		<button id="btn-create" onclick="creer()">Generate</button>
+		<button onclick="resetBoard()">Reset</button>
+	</fieldset>
+	
+	<div id="pion" class="pion"></div>
+	<script src="Jeu_De_Plateau_script.js"> </script>
+    <script src="Jeu_De_Plateay_Script_usuel.js"></script>
+    <script src="jquery.js"></script>
+    <script src="jquery-ui.js"></script>
+
+	<div id="board" type="text" onkeypress="check(event)"> </div>
+
+
+    <script>
+          $( function() {
+             $( "#menu" ).draggable();
+             $("#btnTour").click(function() {
+                if($('#tour').val() == 'bleu' ){
+                   $('.section').css("border-color", "white");
+                   $('.bleu' ).parent().css("border-color","#4FC1E9");}
+                if($('#tour').val() == 'rouge'){
+                   $('.section').css("border-color", "white");
+                   $('.rouge').parent().css("border-color","#ED5565");
+                }
+             });
+          });
+        
+    </script>
+</body>
+</html>

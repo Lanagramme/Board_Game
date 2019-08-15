@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Board Game</title>
+	<link rel="stylesheet" type="text/css" href="Jeu_De_Plateau_style.css">
+	<link rel="stylesheet" type="text/css" href="animate.css">
+</head>
+<body>
+
+	<fieldset>
+		Nbr de colones :
+		<input type="text" id="col" value=6 required>
+		Nbr de lignes :
+		<input type="text" id="row" value=6 required>
+		<button id="btn-create" onclick="creer()">Generate</button>
+		<button onclick="resetBoard()">Reset</button>
+	</fieldset>
+
+    <div id="menu">
+        <div class="head">
+            <id class="tab button bleuInfo" id="tab1" >Move</id>
+            <id class="tab button" id="tab2">Attack</id>
+        </div>
+        <div class="body">
+            <div id="page1">
+                <input  id="tour" type="text" style="display: none" value="rouge"/>
+                <button class="button" onClick="h(1, 1, 'range')">Move 1</button> <br> <br>
+                <button class="button" onClick="h(2, 1, 'range')">Move 2</button> <br> <br>
+                <button class="button" onClick="h(3, 1, 'range')">Move 3</button> <br> <br>
+                <button onClick="f('active'); f('range'); f('aoe')">Cancel</button> <br> <br>
+                <button classe="btnTour" onClick="tour()">Fin du Tour</button> <br> <br>
+            </div>
+            <div id="page2" style="display: none">
+                <button class="button" onClick="cross()">Attack 1</button> <br> <br>
+                <button class="button" onClick="h(2, 0, 'aoe',0)">Attack 2</button> <br> <br>
+                <button class="button" onClick="h(4, 0, 'aoe',1)">Attack 3</button> <br> <br>
+                <button onClick="f('active'); f('range'); f('aoe')">Cancel</button> <br> <br>
+                <button classe="btnTour" onClick="tour()">Fin du Tour</button> <br> <br>
+                
+            </div>
+        </div>
+    </div>
+	
+	<div id="pion" class="pion"></div>
+
+	<div id="board" type="text" onkeypress="check(event)"> </div>
+	
+	<script type="text/javascript" src="Jeu_De_Plateau_script.js"> </script>
+    <script type="text/javascript" src="jquery.js"></script>
+    <script type="text/javascript" src="jquery-ui.js"></script>
+
+
+    <script>
+        
+        $(function() {
+            $('#tab1').click(function() {
+               $('.tab').removeClass('bleuInfo');
+               $(this).addClass('bleuInfo');
+               $('#page2').css("display", "none"); 
+               $('#page1').css("display", "block"); 
+            });
+            $('#tab2').click(function() {
+               $('.tab').removeClass('bleuInfo');
+               $(this).addClass('bleuInfo');
+               $('#page1').css("display", "none"); 
+               $('#page2').css("display", "block"); 
+            });
+             $( "#menu" ).draggable();
+             $(".btnTour").click();
+          });
+        
+    </script>
+</body>
+</html>

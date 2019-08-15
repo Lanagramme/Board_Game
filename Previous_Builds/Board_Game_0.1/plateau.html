@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Board Game</title>
+	<link rel="stylesheet" type="text/css" href="CSS/plateau.css">
+</head>
+<body>
+	<fieldset>
+		Nbr de colones :
+		<input type="text" id="col">
+		Nbr de lignes :
+		<input type="text" id="row">
+		<button onclick="creer()">Créer</button>
+	</fieldset>
+
+	<div id="board" type="text" onkeypress="check(event)"> </div>
+
+	<script src="script/plateau.js"></script>
+</body>
+</html>
