@@ -45,7 +45,7 @@ export default class Damier {
 			$( this.coordonnees_to_querySelector(coordonnees) ).append(pion.html) 
 			pion.define_position(coordonnees) 
 			$(`#${pion.equipe}`).append(`
-				<div id="info-${pion.id}" class="p-1 d-flex">
+				<div id="info_${pion.id}" class="p-1 d-flex">
 					<span class="circle ${pion.couleur} mr-2"></span>
 					<span id="coord-${pion.id}">x${pion.coord.x} : y${pion.coord.y}</span>
 					<span class="ml-2"> [ <span id="pv-${pion.id}">${pion.pv}</span> / ${pion.pv_max} ]<span/>
@@ -115,7 +115,7 @@ export default class Damier {
 	clear_board_classes(){
 		$('.case').removeClass('active').removeClass('movement').removeClass('attack').removeClass('attack')
 		$('.pion').removeClass('animate__bounce')
-		$('*[id^="info-"]').removeClass('red')
+		$('*[id^="info_"]').removeClass('red')
 		this.pion_actif = null
 	}
 
@@ -142,7 +142,7 @@ export default class Damier {
 				let target = this.pions.find(x => x.id == event.target.children[0].id)
 				target.pv -= 5
 			}
-			else if( this.pion_actif != null && event.target.children.length && !Array.from(event.target.classList).includes('attack')){
+			else if( this.pion_actif != null && event.target.children.length){
 				this.clear_board_classes()
 				this.pion_actif = this.pions.find(x => x.id == event.target.children[0].id)
 				$(this.coordonnees_to_querySelector(this.pion_actif.coord)).addClass('active')
@@ -161,10 +161,10 @@ export default class Damier {
 				this.clear_board_classes()
 			}
 
-			$('*[id^="info-"]').removeClass('red')
+			$('*[id^="info_"]').removeClass('red')
 			if (this.pion_actif != null){
 				console.log({id : this.pion_actif.id, coord: this.pion_actif.coord})
-				$(`#info-${this.pion_actif.id}`).addClass('red')
+				$(`#info_${this.pion_actif.id}`).addClass('red')
 			}
 		})
 	}

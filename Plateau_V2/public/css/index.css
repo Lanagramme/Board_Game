@@ -53,6 +53,7 @@ div[class^="ligne_"]{
 
 .movement{ background-color: cyan;}
 .attack{ background-color: purple;}
+.tour{border: 1px solid red;}
 
 #modal{
     position: fixed;
