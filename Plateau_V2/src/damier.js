@@ -127,14 +127,12 @@ export default class Damier {
 			if (!classes.includes('case')) event.target = event.target.parentNode
 			//s'il n'y a pas de pion actif et que la case sélectionnée contiens un pion
 			//Faire du pion qu'elle contiens le pion actif et de cette case la case active
-			if( this.pion_actif == null && event.target.children.length){
+			if( this.pion_actif == null && event.target.children.length && Array.from(event.target.classList).includes('tour')){
 				this.clear_board_classes()
 				cl(event.target.children[0].id)
 				this.pion_actif = this.pions.find(x => x.id == event.target.children[0].id)
 				$(this.coordonnees_to_querySelector(this.pion_actif.coord)).addClass('active')
 			}
-			//s'il y a déja un pion actif mais que la case sélectionnée contiens un autre pion 
-			//celui ci devient le pion actif
 			else if( this.pion_actif != null && event.target.children.length && Array.from(event.target.classList).includes('attack')){
 				this.clear_board_classes()
 				event.target.children[0].classList.add('animate__bounce')
@@ -142,7 +140,9 @@ export default class Damier {
 				let target = this.pions.find(x => x.id == event.target.children[0].id)
 				target.pv -= 5
 			}
-			else if( this.pion_actif != null && event.target.children.length){
+			//s'il y a déja un pion actif mais que la case sélectionnée contiens un autre pion 
+			//celui ci devient le pion actif
+			else if( this.pion_actif != null && event.target.children.length && Array.from(event.target.classList).includes('tour')){
 				this.clear_board_classes()
 				this.pion_actif = this.pions.find(x => x.id == event.target.children[0].id)
 				$(this.coordonnees_to_querySelector(this.pion_actif.coord)).addClass('active')
@@ -151,10 +151,13 @@ export default class Damier {
 			//s'il y a un pion actif et que la case est vide
 			//y déplacer le pion actif
 			else if( this.pion_actif != null && Array.from(event.target.classList).includes('movement')){
-				this.move(this.pion_actif, {
+				$(this.coordonnees_to_querySelector(this.pion_actif.coord)).removeClass('tour')
+				let coordonnees_case_cible = {
 					x: Number(Array.from(event.target.classList)[1].split('x')[1]),
 					y: Number(Array.from(event.target.classList)[2].split('y')[1]),
-				})
+				}
+				this.move(this.pion_actif, coordonnees_case_cible)
+				$(this.coordonnees_to_querySelector(coordonnees_case_cible)).addClass('tour')
 				this.clear_board_classes()
 			}
 			else{

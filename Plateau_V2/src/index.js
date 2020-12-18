@@ -61,6 +61,7 @@ let equipes = {
 }
 let pions = create_teams(3, equipes) //créer deux équipes de trois joueurs et stoque chaque pion dans le tableau
 let plateau = new Damier(5,5, pions)
+let index = 1
 // ---------------- Events ----------------
 $('form').submit(function (event) {
 	event.preventDefault();
@@ -72,11 +73,15 @@ $('form').submit(function (event) {
 	plateau.pions = create_teams(3, equipes)
 	plateau.reset_damier($('#compte_ligne').val(), $('#compte_colone').val())
 	$('.all').hide()
+	begin_tour(1)
+	index = 1
 })
 
 plateau.dessin_damier()
 plateau.spawn()
 plateau.case_event()
+
+begin_tour(1)
 
 
 $('.deplacement').click(()=>{
@@ -93,11 +98,34 @@ $('.clearBoard').click(()=>{
 })
 
 
+function begin_tour(){
+	//definir l'équipe active
+	let nom_equipe_active = equipes["equipe" + index].nom
+	let membres_equipe_active = get_team_member("equipe" + index)
+	//changer le nom de l'équipe active
+	$('#tour').html(nom_equipe_active)
+	//mettre la classe tour à toutes les cases parent des pions de l'équipe
+	for(let i = 0; i<membres_equipe_active.length; i++){
+		if (membres_equipe_active[i].pv>0)
+			$(plateau.coordonnees_to_querySelector(membres_equipe_active[i].coord)).addClass('tour')
+	}
+	//Verfier apres chaque clic si le tour est fini
+}
 
+function end_tour(){
+	if (index == 1) index = 2
+	else index = 1
+	//enlever la classe tour à toutes les cases parent des pions de l'équipe
+	$('.case').removeClass('tour')
+	//verifier s'il y a un vaincquer 
+	//si oui afficher un modal pour terminer la partie
+	//sinon lancer begin_tour avec l'index de l'autre equipe
+	begin_tour()
+}
 
-
-
-
+$('.fin').click(()=>{
+	end_tour()
+})
 
 
 
