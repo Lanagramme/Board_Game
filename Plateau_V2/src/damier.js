@@ -1,25 +1,98 @@
+import { Pion, Equipe} from './pions.js'
 var cl = console.log
+var names = ["Acid_Apple","Acid_Pain","Acid_Rain","Acid_Sky","Acid_Voice",
+"Bad_Apple","Bad_Book","Bad_Actor",
+"Black_Book","Black_Pain",
+"Blue_Apple","Blue_Lullaby","Blue_Rain",
+"Breaking_Glass","Breaking_Ground","Breaking_Point",
+"Broken_Chains","Broken_Glass","Broken_Lullaby","Broken_Melody","Broken_Shield","Broken_Sky","Broken_Thread","Broken_Void",
+"Crazy_Apple",
+"Electric_Apple","Electric_Blue","Electric_Box","Electric_Chain","Electric_City","Electric_Cube","Electric_Doll","Electric_Dream","Electric_Epic","Electric_Feel","Electric_Fire","Electric_Light","Electric_Lullaby","Electric_Machine","Electric_Man","Electric_Message","Electric_Pain","Electric_Point","Electric_Rain","Electric_Red","Electric_Sheep","Electric_Shock","Electric_Sky","Electric_Sleep","Electric_Snow","Electric_Sound","Electric_Star","Electric_Voice","Electric_Voice","Electric_Void","Electric_Wall","Electric_Wire",
+"Empty_Voice","Empty_Void",
+"Fantom_Freaks","Fantom_Pain","Fantom_Rain",
+"Frontier_Freaks",
+"Frozen_Apple","Frozen_Chains","Frozen_Glass","Frozen_Ground","Frozen_Pain","Frozen_Point","Frozen_Rain","Frozen_Shield","Frozen_Sky","Frozen_Void",
+"Glass_Chains","Glass_Shield","Glass_Sky","Glass_Wall",
+"Icy_Sky",
+"Iron_Chains","Iron_Shield","Iron_Sky","Iron_Thread",
+"Liquid_Pain","Liquid_Sky","Liquid_Void",
+"Phantom_Thread","Phantom_Void",
+"Royal_Guard",
+"Solid_Glass","Solid_Ground","Solid_Pain","Solid_Rain","Solid_Void",
+"Stolen_Book",
+"Void_Dream","Void_Sky","Void_Voice"]
+var cardinal=(i)=>{
+	return [
+		{ x: i.x+1, y: i.y },
+		{ x: i.x-1, y: i.y },
+		{ x: i.x, y: i.y+1 },
+		{ x: i.x, y: i.y-1 }
+	]
+}
 
 export default class Damier {
-	constructor(ligne_max, colone_max, pions){
-		this.ligne_max = ligne_max
-		this.colone_max = colone_max
+	constructor(){
+		this.ligne_max
+		this.colone_max
 		this.pion_actif = null
 		this.case_movement = []
 		this.case_portee = []
-		this.pions = pions
+		this.pions = []
+		this.equipes = {}
 	}
-
+	_RNG(max) { return Math.floor(Math.random() * Math.floor(max)); }
+	
+	//------ informations du plateau ------
 	coordonnees_to_querySelector(coordonnees) { return `.x${coordonnees.x}.y${coordonnees.y}` }
 	coordonnees_from_classes(classes) { return { x: Number(classes[1].split('x')[1]) , y: Number(classes[2].split('y')[1]) } }
+	coordonnees_aleatoires() { return { x : this._RNG(this.colone_max-1) + 1, y : this._RNG(this.ligne_max-1) + 1 } }
+	_distance(depart, arrivee){
+		return Math.sqrt( Math.pow((arrivee.x - depart.x), 2) + Math.pow((arrivee.y - depart.y), 2))
+	}
+
+	//------ nouvelle partie ------
 	reset_damier(a,b){
 		this.ligne_max = a
 		this.colone_max = b
-		this.dessin_damier()
-		this.spawn()
-		this.case_event()
+
+		let couleurs_equipes = this._pick_random_colors()
+		let noms_equipes = this._pick_random_names()
+		this.equipes = {
+			equipe1 : new Equipe(noms_equipes[0], ('lin-' + couleurs_equipes[0])),
+			equipe2 : new Equipe(noms_equipes[1], ('lin-' + couleurs_equipes[1]))
+		}
+	
+		this._create_teams(3)
+
+		this._dessin_damier()
+		this._spawn()
+		this._case_events()
 	}
-	dessin_damier(){
+	_pick_random_colors(){
+		let colors = []
+		colors[0] = this._RNG(6)
+		do { colors[1] = this._RNG(6) }
+		while (colors[0] == colors[1])
+		return colors
+	}
+	_pick_random_names(){
+		let teams_names = []
+		teams_names[0] = names[this._RNG(names.length)]
+		do { teams_names[1] = names[this._RNG(names.length)] }
+		while (teams_names[0] == teams_names[1])
+		return teams_names
+	}
+	_create_teams(taille_equipes){
+		this.pions = []
+		$('.panel .teams').html("")
+		for (let equipe in this.equipes){
+			$('.panel .teams').append(`<div id="${this.equipes[equipe].nom}" class="p-2"><h2>${this.equipes[equipe].nom}</h2></div>`)
+			for (let i = taille_equipes; i>0; i--){
+				this.pions.push(new Pion(this.equipes[equipe].nom, this.equipes[equipe].couleur))
+			}
+		}
+	}
+	_dessin_damier(){
 		$('#grille').html("")
 		for (let i = 0; i < this.ligne_max; i++){
 			$('#grille').append(`<div class="ligne_${i}"></div>`)
@@ -28,16 +101,9 @@ export default class Damier {
 			}
 		}
 	}
-	coordonnees_aleatoires(){ 
-		return { 
-			x : this._RNG(this.colone_max-1)+1, 
-			y : this._RNG(this.ligne_max-1)+1
-		}
-	}
-	_RNG(max) { return Math.floor(Math.random() * Math.floor(max)); }
 
-
-	spawn(){ //place chaque pion dans une case vide aléatoire
+ //------ manipulation des pions ------
+	_spawn(){ //place chaque pion dans une case vide aléatoire
 		let coordonnees
 		for (let pion of this.pions){ 
 			do { coordonnees = this.coordonnees_aleatoires()}
@@ -54,7 +120,7 @@ export default class Damier {
 
 		}
 	}
-	move(pion, position_cible){ //supprime le pion de sa case actuelle et l'ajoute à sa nouvelle case
+	_move(pion, position_cible){ //supprime le pion de sa case actuelle et l'ajoute à sa nouvelle case
 		let nouvelles_coordonnees = this.coordonnees_to_querySelector(position_cible)
 		if ($( nouvelles_coordonnees ).html() == ""){
 			$( this.coordonnees_to_querySelector(pion.coord)).html("")
@@ -62,56 +128,35 @@ export default class Damier {
 			pion.define_position(position_cible)
 			$(`#coord-${pion.id}`).html(`x${pion.coord.x} : y${pion.coord.y}`)
 		}
+		this._identifiers()
 	}
-
-	get_move_area(origin, portee){
+	_get_area(origin, portee, vue){
 		let area = []
 		area.push(origin)
 		for (let j=0; j<portee-1; j++){
 			for (let i of area){
-				if($(this.coordonnees_to_querySelector({ x: i.x+1, y: i.y })).html() == "")
-					area.push({ x: i.x+1, y: i.y })
-				if($(this.coordonnees_to_querySelector({ x: i.x-1, y: i.y })).html() == "")
-					area.push({ x: i.x-1, y: i.y })
-				if($(this.coordonnees_to_querySelector({ x: i.x, y: i.y+1 })).html() == "")
-					area.push({ x: i.x, y: i.y+1 })
-				if($(this.coordonnees_to_querySelector({ x: i.x, y: i.y-1 })).html() == "")
-					area.push({ x: i.x, y: i.y-1 })
+				let directions = cardinal(i)
+				for (let k = 0; k < directions.length; k++) {
+					const element = directions[k];
+					if(!vue){
+						area.push(element)
+					}
+					else if(vue && $(this.coordonnees_to_querySelector(element)).html() == "")
+						area.push(element)
+				}
 				area = Array.from(new Set(area))
 			}
 		}
 		return area
 	}
-	get_attack_area(origin, portee){
-		let area = []
-		area.push(origin)
-		for (let j=0; j<portee-1; j++){
-			for (let i of area){
-					area.push({ x: i.x+1, y: i.y })
-					area.push({ x: i.x-1, y: i.y })
-					area.push({ x: i.x, y: i.y+1 })
-					area.push({ x: i.x, y: i.y-1 })
-				area = Array.from(new Set(area))
-			}
-		}
-		return area
-	}
-	draw_move_area(){
+	draw_area(classe, vue){
 		$('.case').removeClass('attack')
-		let portee = this.get_move_area(this.coordonnees_from_classes($('.active')[0].classList), 3)
-		for (let i of portee){
-			$(this.coordonnees_to_querySelector(i)).addClass('movement')
-		}
-	}
-	draw_attack_area(){
 		$('.case').removeClass('movement')
-		let portee = this.get_attack_area(this.coordonnees_from_classes($('.active')[0].classList), 3)
+		let portee = this._get_area(this.coordonnees_from_classes($('.active')[0].classList), 3, vue)
 		for (let i of portee){
-			$(this.coordonnees_to_querySelector(i)).addClass('attack')
+			$(this.coordonnees_to_querySelector(i)).addClass(classe)
 		}
-
 	}
-
 	clear_board_classes(){
 		$('.case').removeClass('active').removeClass('movement').removeClass('attack').removeClass('attack')
 		$('.pion').removeClass('animate__bounce')
@@ -119,7 +164,8 @@ export default class Damier {
 		this.pion_actif = null
 	}
 
-	case_event(){
+	// ------ Event Listeners ------
+	_case_events(){
 		$('.case').click((event)=>{
 			// cl(pions)
 			let classes = Array.from(event.target.classList)
@@ -156,7 +202,7 @@ export default class Damier {
 					x: Number(Array.from(event.target.classList)[1].split('x')[1]),
 					y: Number(Array.from(event.target.classList)[2].split('y')[1]),
 				}
-				this.move(this.pion_actif, coordonnees_case_cible)
+				this._move(this.pion_actif, coordonnees_case_cible)
 				$(this.coordonnees_to_querySelector(coordonnees_case_cible)).addClass('tour')
 				this.clear_board_classes()
 			}
@@ -170,5 +216,21 @@ export default class Damier {
 				$(`#info_${this.pion_actif.id}`).addClass('red')
 			}
 		})
+		this._identifiers()
+
+
+
 	}
+	_identifiers(){
+
+		$('.pion').hover((event) => {
+			$(`#info_${event.target.id}`).css('background','cyan')
+		})
+
+		$('.pion').mouseout((event) => {
+			$(`#info_${event.target.id}`).css('background','transparent')
+		})
+
+	}
+
 }

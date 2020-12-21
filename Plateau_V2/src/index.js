@@ -1,117 +1,36 @@
 import Damier from './damier.js'
-import { Pion, Equipe} from './pions.js'
 
+// ---------------- Variables ----------------
 var cl = console.log
-var names = ["Acid_Apple","Acid_Pain","Acid_Rain","Acid_Sky","Acid_Voice",
-"Bad_Apple","Bad_Book","Bad_Actor",
-"Black_Book","Black_Pain",
-"Blue_Apple","Blue_Lullaby","Blue_Rain",
-"Breaking_Glass","Breaking_Ground","Breaking_Point",
-"Broken_Chains","Broken_Glass","Broken_Lullaby","Broken_Melody","Broken_Shield","Broken_Sky","Broken_Thread","Broken_Void",
-"Crazy_Apple",
-"Electric_Apple","Electric_Blue","Electric_Box","Electric_Chain","Electric_City","Electric_Cube","Electric_Doll","Electric_Dream","Electric_Epic","Electric_Feel","Electric_Fire","Electric_Light","Electric_Lullaby","Electric_Machine","Electric_Man","Electric_Message","Electric_Pain","Electric_Point","Electric_Rain","Electric_Red","Electric_Sheep","Electric_Shock","Electric_Sky","Electric_Sleep","Electric_Snow","Electric_Sound","Electric_Star","Electric_Voice","Electric_Voice","Electric_Void","Electric_Wall","Electric_Wire",
-"Empty_Voice","Empty_Void",
-"Fantom_Freaks","Fantom_Pain","Fantom_Rain",
-"Frontier_Freaks",
-"Frozen_Apple","Frozen_Chains","Frozen_Glass","Frozen_Ground","Frozen_Pain","Frozen_Point","Frozen_Rain","Frozen_Shield","Frozen_Sky","Frozen_Void",
-"Glass_Chains","Glass_Shield","Glass_Sky","Glass_Wall",
-"Icy_Sky",
-"Iron_Chains","Iron_Shield","Iron_Sky","Iron_Thread",
-"Liquid_Pain","Liquid_Sky","Liquid_Void",
-"Phantom_Thread","Phantom_Void",
-"Royal_Guard",
-"Solid_Glass","Solid_Ground","Solid_Pain","Solid_Rain","Solid_Void",
-"Stolen_Book",
-"Void_Dream","Void_Sky","Void_Voice"]
+var index = 1
 
 // ---------------- Fonctions ---------------- 
-function RNG(max) { return Math.floor(Math.random() * Math.floor(max)); }
-function create_teams(taille_equipe, equipes){
-	let pions = []
-	$('.panel .teams').html("")
-	for (let team in equipes){
-		$('.panel .teams').append(`<div id="${equipes[team].nom}" class="p-2"></div>`)
-		$(`#${equipes[team].nom}`).append(`
-			<h2>${equipes[team].nom}</h2>
-		`)
-		for (let i = taille_equipe; i>0; i--){
-			pions.push(new Pion(equipes[team].nom, equipes[team].couleur))
-		}
+function setup_game(){
+	plateau = new Damier()
+	if ($('#compte_ligne').val() + $('#compte_colone').val() < 6) {
+		alert('valeur incorectes')
+		return
 	}
-	return pions
-}
-function pick_randoom_colors(){
-	let couleur = []
-	couleur[0] = RNG(6)
-	do { couleur[1] = RNG(6) }
-	while (couleur[0] == couleur[1])
-	return couleur
-}
-function get_team_member(equipe){
-	return pions.filter(x => x.equipe == equipes[equipe].nom)
-}
-function distance(depart, arrivee){
-	return Math.sqrt( Math.pow((arrivee.x - depart.x), 2) + Math.pow((arrivee.y - depart.y), 2))
-}
-// ---------------- Variables ----------------
-let couleurs_equipes = pick_randoom_colors() //choisir deux couleurs différentes au hazard
-let equipes = {
-	equipe1 : new Equipe(names[RNG(names.length)], ('lin-' + couleurs_equipes[0])),
-	equipe2 : new Equipe(names[RNG(names.length)], ('lin-' + couleurs_equipes[1]))
-}
-let pions = create_teams(3, equipes) //créer deux équipes de trois joueurs et stoque chaque pion dans le tableau
-let plateau = new Damier(5,5, pions)
-let index = 1
-// ---------------- Events ----------------
-$('form').submit(function (event) {
-	event.preventDefault();
-	couleurs_equipes = pick_randoom_colors()
-	equipes = {
-		equipe1 : new Equipe(names[RNG(names.length)], ('lin-' + couleurs_equipes[0])),
-		equipe2 : new Equipe(names[RNG(names.length)], ('lin-' + couleurs_equipes[1]))
-	}
-	plateau.pions = create_teams(3, equipes)
 	plateau.reset_damier($('#compte_ligne').val(), $('#compte_colone').val())
 	$('.all').hide()
-	begin_tour(1)
-	index = 1
-})
-
-plateau.dessin_damier()
-plateau.spawn()
-plateau.case_event()
-
-begin_tour(1)
-
-
-$('.deplacement').click(()=>{
-	if(plateau.pion_actif != null)
-		if($('.active')) {plateau.draw_move_area()}
-})
-$('.attack').click(()=>{
-	if(plateau.pion_actif != null)
-		if($('.active')) {plateau.draw_attack_area()}
-})
-
-$('.clearBoard').click(()=>{
-	plateau.clear_board_classes()
-})
-
-
+	begin_tour()
+}
 function begin_tour(){
 	//definir l'équipe active
-	let nom_equipe_active = equipes["equipe" + index].nom
-	let membres_equipe_active = get_team_member("equipe" + index)
+	let nom_equipe_active = plateau.equipes["equipe" + index].nom
+	let equipe_active = plateau.pions.filter( x => x.equipe == nom_equipe_active)
+
 	//changer le nom de l'équipe active
 	$('#tour').html(nom_equipe_active)
+	
 	//mettre la classe tour à toutes les cases parent des pions de l'équipe
-	for(let i = 0; i<membres_equipe_active.length; i++){
-		if (membres_equipe_active[i].pv>0)
-			$(plateau.coordonnees_to_querySelector(membres_equipe_active[i].coord)).addClass('tour')
+	cl(equipe_active)
+	for(let i = 0; i<equipe_active.length; i++){
+		if (equipe_active[i].pv>0)
+			$(plateau.coordonnees_to_querySelector(equipe_active[i].coord)).addClass('tour')
 	}
 	//Verfier apres chaque clic si le tour est fini
 }
-
 function end_tour(){
 	if (index == 1) index = 2
 	else index = 1
@@ -120,19 +39,57 @@ function end_tour(){
 	//verifier s'il y a un vaincquer 
 	//si oui afficher un modal pour terminer la partie
 	//sinon lancer begin_tour avec l'index de l'autre equipe
-	begin_tour()
+	begin_tour(equipes)
 }
 
+// ---------------- Events ----------------
+$('form').submit(function (event) {
+	event.preventDefault();
+	setup_game()
+})
+$('.deplacement').click(()=>{
+	if(plateau.pion_actif != null)
+	if($('.active')) {plateau.draw_area('movement', 1)}
+})
+$('.attack').click(()=>{
+	if(plateau.pion_actif != null)
+	if($('.active')) {plateau.draw_area('attack', 0)}
+})
+$('.clearBoard').click(()=>{
+	plateau.clear_board_classes()
+})
 $('.fin').click(()=>{
 	end_tour()
 })
 
+// class Stats{
+// 	constructor(pv, pa, pm){
+// 		this.point_vie = pv
+// 		this.pm = pm
+// 		this.pa = pa
+// 	}	
+
+// }
+
+// class Classe{
+// 	constructor(stats){
+// 		this.stats = stats
+// 		this.competences = []
+// 	}
+
+// }
+// class Personnage{
+// 	constructor(classe){
+// 		this.classe = classe
+// 	}
 
 
-
-
-
-
+// 	stats_editor(){
+// 		this.point_de_vie = this.espece.point_de_vie + this.classe.point_de_vie * this.specialisation.point_de_vie
+// 		this.force = this.espece.force + this.classe.force / this.specialisation.force
+// 		this.agilite = this.espece.agilite + this.classe.agilite / this.specialisation.agilite
+// 	}
+// }
 
 
 
@@ -158,28 +115,12 @@ $('.fin').click(()=>{
 
 //----------------------------------------------------
 /*
-class Stats{
-	constructor(pv,force, agilite){
-		this.point_vie = pv
-		this.force = force 
-		this.agilite = agilite
-	}	
-
-}
 
 class Espece{
 	constructor(stats){
 		this.stats = stats
 		this.traits = []
 	}
-}
-
-class Classe{
-	constructor(stats){
-		this.stats = stats
-		this.competences = []
-	}
-
 }
 
 class Specialisation{
@@ -189,22 +130,6 @@ class Specialisation{
 	}
 }
 
-class Personnage{
-	constructor(classe, espece, specialisation){
-		this.classe = classe
-		this.espece =espece
-		this.specialisation = specialisation
-	}
-
-	get force() { return this.espece.force + this.classe.force / this.specialisation.force
-	}
-
-	stats_editor(){
-		this.point_de_vie = this.espece.point_de_vie + this.classe.point_de_vie * this.specialisation.point_de_vie
-		this.force = this.espece.force + this.classe.force / this.specialisation.force
-		this.agilite = this.espece.agilite + this.classe.agilite / this.specialisation.agilite
-	}
-}
 
 
 humain =  new Espece({pv : 4, force:6, agilite:8}, [traits,traits,traits,traits])
