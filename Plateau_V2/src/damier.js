@@ -1,4 +1,5 @@
 import { Pion, Equipe} from './pions.js'
+
 var cl = console.log
 var names = ["Acid_Apple","Acid_Pain","Acid_Rain","Acid_Sky","Acid_Voice",
 "Bad_Apple","Bad_Book","Bad_Actor",
@@ -35,8 +36,6 @@ export default class Damier {
 		this.ligne_max
 		this.colone_max
 		this.pion_actif = null
-		this.case_movement = []
-		this.case_portee = []
 		this.pions = []
 		this.equipes = {}
 	}

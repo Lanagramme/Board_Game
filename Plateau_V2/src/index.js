@@ -39,7 +39,7 @@ function end_tour(){
 	//verifier s'il y a un vaincquer 
 	//si oui afficher un modal pour terminer la partie
 	//sinon lancer begin_tour avec l'index de l'autre equipe
-	begin_tour(equipes)
+	begin_tour(plateau.equipes)
 }
 
 // ---------------- Events ----------------
@@ -90,16 +90,6 @@ $('.fin').click(()=>{
 // 		this.agilite = this.espece.agilite + this.classe.agilite / this.specialisation.agilite
 // 	}
 // }
-
-
-
-
-
-
-
-
-
-
 
 
 
