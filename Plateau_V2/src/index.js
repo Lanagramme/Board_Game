@@ -1,9 +1,8 @@
 import Damier from './damier.js'
+var Sorts = require('./skill.js')
 
 // ---------------- Variables ----------------
-var cl = console.log
 var index = 1
-
 // ---------------- Fonctions ---------------- 
 function setup_game(){
 	plateau = new Damier()
@@ -11,14 +10,32 @@ function setup_game(){
 		alert('valeur incorectes')
 		return
 	}
+	
 	plateau.reset_damier($('#compte_ligne').val(), $('#compte_colone').val())
 	$('.all').hide()
+	$('.deplacement').click(()=>{
+		if($('.active')) {plateau.draw_area('movement', { type:'cercle', portee: plateau.pion_actif.pm, vue: 1 }) }
+	})
+	$('.attack').click(()=>{
+		if(plateau.pion_actif != null)
+		if($('.active')) {plateau.draw_area('attack', plateau.sort_actif.aire) }
+		// if($('.active')) {plateau.draw_area('attack', 0, 'ligne')}
+	})
+	$('.clearBoard').click(()=>{
+		plateau.clear_board_classes()
+	})
+
 	begin_tour()
 }
 function begin_tour(){
 	//definir l'équipe active
 	let nom_equipe_active = plateau.equipes["equipe" + index].nom
 	let equipe_active = plateau.pions.filter( x => x.equipe == nom_equipe_active)
+	for (let pion of equipe_active){
+		pion.pm = pion.pm_max
+	}
+	$('#pa').html(0)
+	$('#pm').html(0) 
 
 	//changer le nom de l'équipe active
 	$('#tour').html(nom_equipe_active)
@@ -34,8 +51,12 @@ function begin_tour(){
 function end_tour(){
 	if (index == 1) index = 2
 	else index = 1
-	//enlever la classe tour à toutes les cases parent des pions de l'équipe
 	$('.case').removeClass('tour')
+	if ($('div[class^=lin]:not(.portrait)')) document.getElementById('portrait').classList.remove(document.getElementById('portrait').classList[document.getElementById('portrait').classList.length-1])
+	$('#pa').html(0)
+	$('#pm').html(0) 
+
+	plateau.clear_board_classes()
 	//verifier s'il y a un vaincquer 
 	//si oui afficher un modal pour terminer la partie
 	//sinon lancer begin_tour avec l'index de l'autre equipe
@@ -47,21 +68,20 @@ $('form').submit(function (event) {
 	event.preventDefault();
 	setup_game()
 })
-$('.deplacement').click(()=>{
-	if(plateau.pion_actif != null)
-	if($('.active')) {plateau.draw_area('movement', 1)}
-})
-$('.attack').click(()=>{
-	if(plateau.pion_actif != null)
-	if($('.active')) {plateau.draw_area('attack', 0)}
-})
-$('.clearBoard').click(()=>{
-	plateau.clear_board_classes()
-})
+
 $('.fin').click(()=>{
 	end_tour()
 })
 
+
+let sort = `
+<div class="sort border p-2 d-flex flex-wrap">
+	<div class="icon"></div>
+	<div class="text d-flex ">
+		<p class="align-self-center m-0 p-2">Nom du skill</p>
+	</div>
+</div>
+`
 // class Stats{
 // 	constructor(pv, pa, pm){
 // 		this.point_vie = pv

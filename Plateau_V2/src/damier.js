@@ -1,4 +1,5 @@
 import { Pion, Equipe} from './pions.js'
+var Sorts = require('./skill.js')
 
 var cl = console.log
 var names = ["Acid_Apple","Acid_Pain","Acid_Rain","Acid_Sky","Acid_Voice",
@@ -22,35 +23,30 @@ var names = ["Acid_Apple","Acid_Pain","Acid_Rain","Acid_Sky","Acid_Voice",
 "Solid_Glass","Solid_Ground","Solid_Pain","Solid_Rain","Solid_Void",
 "Stolen_Book",
 "Void_Dream","Void_Sky","Void_Voice"]
-var cardinal=(i)=>{
-	return [
-		{ x: i.x+1, y: i.y },
-		{ x: i.x-1, y: i.y },
-		{ x: i.x, y: i.y+1 },
-		{ x: i.x, y: i.y-1 }
-	]
-}
 
 export default class Damier {
 	constructor(){
-		this.ligne_max
-		this.colone_max
+		this.ligne_max = 0
+		this.colone_max = 0
 		this.pion_actif = null
 		this.pions = []
 		this.equipes = {}
+		this.sort_actif = null
+
 	}
-	_RNG(max) { return Math.floor(Math.random() * Math.floor(max)); }
 	
 	//------ informations du plateau ------
 	coordonnees_to_querySelector(coordonnees) { return `.x${coordonnees.x}.y${coordonnees.y}` }
 	coordonnees_from_classes(classes) { return { x: Number(classes[1].split('x')[1]) , y: Number(classes[2].split('y')[1]) } }
-	coordonnees_aleatoires() { return { x : this._RNG(this.colone_max-1) + 1, y : this._RNG(this.ligne_max-1) + 1 } }
+	coordonnees_aleatoires() { return { x : RNG(this.colone_max-1) + 1, y : RNG(this.ligne_max-1) + 1 } }
 	_distance(depart, arrivee){
 		return Math.sqrt( Math.pow((arrivee.x - depart.x), 2) + Math.pow((arrivee.y - depart.y), 2))
 	}
 
 	//------ nouvelle partie ------
 	reset_damier(a,b){
+		$('#info').html("")
+		$('.panel .teams').html("")
 		this.ligne_max = a
 		this.colone_max = b
 
@@ -69,23 +65,22 @@ export default class Damier {
 	}
 	_pick_random_colors(){
 		let colors = []
-		colors[0] = this._RNG(6)
-		do { colors[1] = this._RNG(6) }
-		while (colors[0] == colors[1])
+		colors[0] = RNG(6)
+		do { colors[1] = RNG(6) }
+		while (colors[0] === colors[1])
 		return colors
 	}
 	_pick_random_names(){
 		let teams_names = []
-		teams_names[0] = names[this._RNG(names.length)]
-		do { teams_names[1] = names[this._RNG(names.length)] }
-		while (teams_names[0] == teams_names[1])
+		teams_names[0] = names[RNG(names.length)]
+		do { teams_names[1] = names[RNG(names.length)] }
+		while (teams_names[0] === teams_names[1])
 		return teams_names
 	}
 	_create_teams(taille_equipes){
 		this.pions = []
-		$('.panel .teams').html("")
 		for (let equipe in this.equipes){
-			$('.panel .teams').append(`<div id="${this.equipes[equipe].nom}" class="p-2"><h2>${this.equipes[equipe].nom}</h2></div>`)
+			$('.panel .teams').append(`<div id="${this.equipes[equipe].nom}" class="p-2 d-flex"><span class="d-flex"><p class="m-0 mb-3 align-self-end team-name">${this.equipes[equipe].nom}</p></span><div id="${this.equipes[equipe].nom}-pions"><div></div>`)
 			for (let i = taille_equipes; i>0; i--){
 				this.pions.push(new Pion(this.equipes[equipe].nom, this.equipes[equipe].couleur))
 			}
@@ -106,22 +101,71 @@ export default class Damier {
 		let coordonnees
 		for (let pion of this.pions){ 
 			do { coordonnees = this.coordonnees_aleatoires()}
-			while ( $( this.coordonnees_to_querySelector(coordonnees) ).html() != "" )
+			while ( $( this.coordonnees_to_querySelector(coordonnees) ).html() !== "" )
 			$( this.coordonnees_to_querySelector(coordonnees) ).append(pion.html) 
 			pion.define_position(coordonnees) 
-			$(`#${pion.equipe}`).append(`
-				<div id="info_${pion.id}" class="p-1 d-flex">
+			
+			let sorts_du_pion = ""
+			for (let sort of pion.skills){
+				sorts_du_pion += `
+				<div id="${sort}" class="sort border p-2 d-flex flex-wrap align-items-center">
+					<div class="icon"></div>
+						<p class="m-0 p-2">${Sorts[sort].name}</p>
+				</div>
+				`
+			}
+			$(`#${pion.equipe}-pions`).append(`
+				<div id="local_${pion.id}" class="p-1 d-flex">
 					<span class="circle ${pion.couleur} mr-2"></span>
-					<span id="coord-${pion.id}">x${pion.coord.x} : y${pion.coord.y}</span>
-					<span class="ml-2"> [ <span id="pv-${pion.id}">${pion.pv}</span> / ${pion.pv_max} ]<span/>
 				</div>
 			`)
+			$(`#info`).append(`
+				<div id="info-${pion.id}">
+					<div class="info border border-rounded p-2">
+						<div class="sorts">${sorts_du_pion}</div>
+				
+						<div class="d-flex">
+							<div class="info-main px-4 pb-3 pt-1">
+								<div id="portrait" class="border rounded-circle portrait ${pion.couleur}">
+									<div class="rounded-circle border border-success outer">
+										<div class="rounded-circle bg-success">
+											<div id="pm-${pion.id}" class="pion-pm white">${pion.pm}</div>
+											<div class="label">PM</div>
+										</div>
+									</div>
+									<div class="rounded-circle border border-danger outer">
+										<div class="rounded-circle bg-danger">
+											<div id="pa" class="pion-pa white">${pion.pa}</div>
+											<div class="label">PA</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							
+							<div class="info-second">
+								<div class="d-flex py-1">
+										<div class="btn m-2 btn-primary deplacement">Move</div>
+										<div class="btn m-2 btn-success clearBoard">Clear</div>
+										<div class="btn m-2 btn-danger attack">Attack</div>
+								</div>
+								<div class="bars">
+									<span id="lifebar" class="lifebar border d-grid centered">
+										<span id="info-pv"> <span id="pv-${pion.id}">${pion.pv}</span> / ${pion.pv_max} </span>
+									</span>
+									<span id="aura" class="aura d-flex border"></span>
+								</div>	
+							</div>
+						</div>
+					</div>
+				</div>
+			`)
+			$(`#info-${pion.id}`).hide()
 
 		}
 	}
 	_move(pion, position_cible){ //supprime le pion de sa case actuelle et l'ajoute à sa nouvelle case
 		let nouvelles_coordonnees = this.coordonnees_to_querySelector(position_cible)
-		if ($( nouvelles_coordonnees ).html() == ""){
+		if ($( nouvelles_coordonnees ).html() === ""){
 			$( this.coordonnees_to_querySelector(pion.coord)).html("")
 			$( nouvelles_coordonnees ).append( pion.html )
 			pion.define_position(position_cible)
@@ -129,29 +173,57 @@ export default class Damier {
 		}
 		this._identifiers()
 	}
-	_get_area(origin, portee, vue){
+	_get_area(origin, aire){
 		let area = []
+		let horizontal=(i)=>{ return [ { x: i.x+1, y: i.y }, { x: i.x-1, y: i.y } ]}
+		let vertical  =(i)=>{ return [ { x: i.x, y: i.y+1 }, { x: i.x, y: i.y-1 } ]}
+		let cardinal=(i)=>{ return horizontal(i).concat(vertical(i))}
 		area.push(origin)
-		for (let j=0; j<portee-1; j++){
-			for (let i of area){
-				let directions = cardinal(i)
-				for (let k = 0; k < directions.length; k++) {
-					const element = directions[k];
-					if(!vue){
-						area.push(element)
+
+		switch(aire.type){
+			case 'cercle':
+				for (let j=0; j<aire.portee; j++){
+					let foo = area.length
+					for (let i = 0; i<foo; i++){
+						let directions = cardinal(area[i])
+						for (let k = 0; k < directions.length; k++) {
+							const element = directions[k];
+							if(!aire.vue){
+								area.push(element)
+							}
+							else if(aire.vue && $(this.coordonnees_to_querySelector(element)).html() === "")
+								area.push(element)
+						}
+						area = Array.from(new Set(area))
 					}
-					else if(vue && $(this.coordonnees_to_querySelector(element)).html() == "")
-						area.push(element)
 				}
-				area = Array.from(new Set(area))
-			}
+				break;
+			case 'ligne':
+				area = area.concat(cardinal(origin))
+				for (let j= 0; j<aire.portee-1; j++){
+					let foo = area.length
+					for (let i = 0; i<foo; i++){
+						if (area[i].y === origin.y){ area = area.concat(horizontal(area[i])) }
+						else  { area = area.concat(vertical(area[i])) }
+					}
+					area = Array.from(new Set(area))
+				}
+				break;
+			case '':
+				break;
 		}
 		return area
 	}
-	draw_area(classe, vue){
+	draw_area(classe, aire){
 		$('.case').removeClass('attack')
 		$('.case').removeClass('movement')
-		let portee = this._get_area(this.coordonnees_from_classes($('.active')[0].classList), 3, vue)
+		let portee
+		if (classe === 'attack'){
+			portee = this._get_area(this.coordonnees_from_classes($('.active')[0].classList), aire)
+		}
+		else {
+			portee = this._get_area(this.coordonnees_from_classes($('.active')[0].classList), aire)
+		}
 		for (let i of portee){
 			$(this.coordonnees_to_querySelector(i)).addClass(classe)
 		}
@@ -159,49 +231,76 @@ export default class Damier {
 	clear_board_classes(){
 		$('.case').removeClass('active').removeClass('movement').removeClass('attack').removeClass('attack')
 		$('.pion').removeClass('animate__bounce')
-		$('*[id^="info_"]').removeClass('red')
+		$('*[id^="local_"]').removeClass('red')
+		if(this.pion_actif !== null) $(`#info-${this.pion_actif.id}`).hide()
 		this.pion_actif = null
 	}
 
 	// ------ Event Listeners ------
 	_case_events(){
 		$('.case').click((event)=>{
-			// cl(pions)
+			cl(this.pion_actif)
 			let classes = Array.from(event.target.classList)
 			//s'assurer que la case est sélectionnée et pas le pion qu'elle contient
 			if (!classes.includes('case')) event.target = event.target.parentNode
 			//s'il n'y a pas de pion actif et que la case sélectionnée contiens un pion
 			//Faire du pion qu'elle contiens le pion actif et de cette case la case active
-			if( this.pion_actif == null && event.target.children.length && Array.from(event.target.classList).includes('tour')){
+			if( this.pion_actif === null && event.target.children.length && Array.from(event.target.classList).includes('tour')){
 				this.clear_board_classes()
-				cl(event.target.children[0].id)
-				this.pion_actif = this.pions.find(x => x.id == event.target.children[0].id)
+				this.pion_actif = this.pions.find(x => x.id === event.target.children[0].id)
 				$(this.coordonnees_to_querySelector(this.pion_actif.coord)).addClass('active')
+
+				
+				//===================================================
+				$('#portrait').addClass(this.pion_actif.couleur)
+				$('#pa').html(this.pion_actif.pa)
+				$('#pm').html(this.pion_actif.pm)
+				$('#pv').html(this.pion_actif.pv)
+				$('#pv-max').html(this.pion_actif.pv_max)
+				$(`#info-${this.pion_actif.id}`).show()
+				//===================================================
+
+				
 			}
-			else if( this.pion_actif != null && event.target.children.length && Array.from(event.target.classList).includes('attack')){
-				this.clear_board_classes()
+			else if( this.pion_actif !== null && event.target.children.length && Array.from(event.target.classList).includes('attack')){
 				event.target.children[0].classList.add('animate__bounce')
-				cl(event.target.children[0].id)
-				let target = this.pions.find(x => x.id == event.target.children[0].id)
-				target.pv -= 5
+				let target = this.pions.find(x => x.id === event.target.children[0].id)
+				// target.pv -= this.sort_actif.damage
+				cl(Sorts.fire_bolt.cost.pa)
+				cl("cast func return",this.sort_actif.cast(this.pion_actif, target))
+				this.clear_board_classes()
 			}
 			//s'il y a déja un pion actif mais que la case sélectionnée contiens un autre pion 
 			//celui ci devient le pion actif
-			else if( this.pion_actif != null && event.target.children.length && Array.from(event.target.classList).includes('tour')){
+			else if( this.pion_actif !== null && event.target.children.length && Array.from(event.target.classList).includes('tour')){
 				this.clear_board_classes()
-				this.pion_actif = this.pions.find(x => x.id == event.target.children[0].id)
+				this.pion_actif = this.pions.find(x => x.id === event.target.children[0].id)
 				$(this.coordonnees_to_querySelector(this.pion_actif.coord)).addClass('active')
+
+
+				//===================================================
+				$('#portrait').addClass(this.pion_actif.couleur)
+				$('#pa').html(this.pion_actif.pa)
+				$('#pm').html(this.pion_actif.pm)
+				$('#pv').html(this.pion_actif.pv)
+				$('#pv-max').html(this.pion_actif.pv_max)
+				$(`#info-${this.pion_actif.id}`).show()
+				//===================================================
+				 
 				
 			}
 			//s'il y a un pion actif et que la case est vide
 			//y déplacer le pion actif
-			else if( this.pion_actif != null && Array.from(event.target.classList).includes('movement')){
+			else if( this.pion_actif !== null && Array.from(event.target.classList).includes('movement')){
 				$(this.coordonnees_to_querySelector(this.pion_actif.coord)).removeClass('tour')
 				let coordonnees_case_cible = {
 					x: Number(Array.from(event.target.classList)[1].split('x')[1]),
 					y: Number(Array.from(event.target.classList)[2].split('y')[1]),
 				}
+				let pm_depense =  Math.abs(this.pion_actif.coord.x - coordonnees_case_cible.x) + Math.abs(this.pion_actif.coord.y - coordonnees_case_cible.y)
+				this.pion_actif.pm -= pm_depense
 				this._move(this.pion_actif, coordonnees_case_cible)
+
 				$(this.coordonnees_to_querySelector(coordonnees_case_cible)).addClass('tour')
 				this.clear_board_classes()
 			}
@@ -209,10 +308,9 @@ export default class Damier {
 				this.clear_board_classes()
 			}
 
-			$('*[id^="info_"]').removeClass('red')
-			if (this.pion_actif != null){
-				console.log({id : this.pion_actif.id, coord: this.pion_actif.coord})
-				$(`#info_${this.pion_actif.id}`).addClass('red')
+			$('*[id^="local_"]').removeClass('red')
+			if (this.pion_actif !== null){
+				$(`#local_${this.pion_actif.id}`).addClass('red')
 			}
 		})
 		this._identifiers()
@@ -223,11 +321,17 @@ export default class Damier {
 	_identifiers(){
 
 		$('.pion').hover((event) => {
-			$(`#info_${event.target.id}`).css('background','cyan')
+			$(`#local_${event.target.id}`).css('background','cyan')
 		})
 
 		$('.pion').mouseout((event) => {
-			$(`#info_${event.target.id}`).css('background','transparent')
+			$(`#local_${event.target.id}`).css('background','transparent')
+		})
+		$('.sort').click((event)=>{
+			let sort = null
+			if(!Array.from(event.target.classList).includes('sort')) sort = event.target.parentNode.id
+			else sort = event.target.id
+			this.sort_actif = Sorts[sort]
 		})
 
 	}

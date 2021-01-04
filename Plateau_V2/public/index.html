@@ -56,24 +56,28 @@
 			<button class="btn btn-danger fin">Fin du tour</button>
 		</div>
 		<div id="plateau">
-			<div id="grille"></div>
+			<div id="grille" class="mx-auto"></div>
+		</div>
+		
+		<div class="shadow panel border rounded p-3">
+			<div class="teams">
+			</div>
+		</div>
+
+		<div id="info" class="shadow rounded">
+			
 		</div>
 
 	</main>
-
-
-	<div class="panel border rounded p-3">
-		<div class="d-f">
-			<div class="btn m-2 btn-primary deplacement">Move</div>
-			<div class="btn m-2 btn-success clearBoard">Clear</div>
-			<div class="btn m-2 btn-danger attack">Attack</div>
-		</div>
-		<div class="teams"></div>
-	</div>
-	<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-	<script src="bundle.js"></script>
+	
 	<script>
 		cl = console.log
+		function RNG(max) { return Math.floor(Math.random() * Math.floor(max)); }
+	</script>
+	<script src="./jquery-3.4.1.js"></script>
+	<!-- <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script> -->
+	<script src="bundle.js"></script>
+	<script>
 		$('.cross').click(()=>{
 			$('.all').hide()
 		})
@@ -81,6 +85,14 @@
 		$('.new').click(()=>{
 			$('#modal').show()
 		})
+
+
+
+
+
+
+
+
 
 
 	</script>
