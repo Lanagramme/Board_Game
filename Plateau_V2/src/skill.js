@@ -1,5 +1,6 @@
 let Dice = (n = 10) => {
 	let jet = RNG(20)
+	if (jet >= n) jet = RNG(20)
 	switch (true) {
 		case (jet == 1 ): return "critical echec";
 		case (jet <= n ): return "echec";
@@ -30,7 +31,6 @@ class Skills {
 		caster.pv -= this.cost.pv
 
 		let jet = Dice()
-		if (jet == "critical echec" || jet =="echec") jet = Dice()
 
 		switch (jet) {
 			case "critical echec"   || "echec"  : return "miss";
@@ -85,7 +85,7 @@ let Sorts = {
 	//====================================================================================================
 	//              Modification par D.TISSOT
 	//====================================================================================================
-	fire_bolt : new Skills ('Trait de feu', { type:'ligne', portee: 6, vue: 0 },  new Costs(2,0,0,[0,0,0]), 'feu', 10, [] ),
+	fire_bolt : new Skills ('Trait de feu', { type:'ligne', portee: 6, vue: 0 },  new Costs(2,0,0,[0,0,0]), 'feu', 5, [] ),
 	heal      : new Skills ('Soin' , {type: 'cercle', portee: 4, vue: 0}, new Costs(4,0,0,[0,0,0]), 'terre', -4, []) ,
 	frost     : new Skills ('frost', {type: 'cone'  , portee: 3, vue: 0}, new Costs(3,0,0,[0,0,0]), 'eau'  , 03, [])
 

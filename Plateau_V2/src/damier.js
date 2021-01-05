@@ -149,8 +149,10 @@ export default class Damier {
 										<div class="btn m-2 btn-danger attack">Attack</div>
 								</div>
 								<div class="bars">
-									<span id="lifebar" class="lifebar border d-grid centered">
-										<span id="info-pv"> <span id="pv-${pion.id}">${pion.pv}</span> / ${pion.pv_max} </span>
+									<span id="lifebar" class="lifebar bg-secondary border">
+										<span id="life-${pion.id}" class="bg-success d-grid centered" style="height: 100%; position: relative;">
+											<div class="info-pv"> <span id="pv-${pion.id}">${pion.pv}</span> / ${pion.pv_max} </div>
+										</span>
 									</span>
 									<span id="aura" class="aura d-flex border"></span>
 								</div>	
@@ -238,6 +240,7 @@ export default class Damier {
 
 	// ------ Event Listeners ------
 	_case_events(){
+		let life = 0
 		$('.case').click((event)=>{
 			cl(this.pion_actif)
 			let classes = Array.from(event.target.classList)
@@ -252,11 +255,8 @@ export default class Damier {
 
 				
 				//===================================================
-				$('#portrait').addClass(this.pion_actif.couleur)
-				$('#pa').html(this.pion_actif.pa)
-				$('#pm').html(this.pion_actif.pm)
-				$('#pv').html(this.pion_actif.pv)
-				$('#pv-max').html(this.pion_actif.pv_max)
+				life = this.pion_actif.pv / this.pion_actif.pv_max *100
+				$(`#life-${this.pion_actif.id}`).css('width', `${life}%`)
 				$(`#info-${this.pion_actif.id}`).show()
 				//===================================================
 
@@ -279,11 +279,8 @@ export default class Damier {
 
 
 				//===================================================
-				$('#portrait').addClass(this.pion_actif.couleur)
-				$('#pa').html(this.pion_actif.pa)
-				$('#pm').html(this.pion_actif.pm)
-				$('#pv').html(this.pion_actif.pv)
-				$('#pv-max').html(this.pion_actif.pv_max)
+				life = this.pion_actif.pv / this.pion_actif.pv_max *100
+				$(`#life-${this.pion_actif.id}`).css('width', `${life}%`)
 				$(`#info-${this.pion_actif.id}`).show()
 				//===================================================
 				 
