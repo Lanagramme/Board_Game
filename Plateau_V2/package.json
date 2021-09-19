@@ -1,0 +1,26 @@
+{
+  "name": "plateau_v2",
+  "version": "1.0.0",
+  "description": "A turn base board game",
+  "main": "./src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lanagramme/Board_Game.git"
+  },
+  "keywords": [
+    "Board_bame"
+  ],
+  "author": "Lanagramme",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Lanagramme/Board_Game/issues"
+  },
+  "homepage": "https://github.com/Lanagramme/Board_Game#readme",
+  "devDependencies": {
+    "webpack": "^5.53.0",
+    "webpack-cli": "^4.8.0"
+  }
+}

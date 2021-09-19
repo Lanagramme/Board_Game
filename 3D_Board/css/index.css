@@ -1,0 +1,39 @@
+* {
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.div {
+	transform: perspective(600px) rotateX(35deg);
+	overflow: hidden;
+	background: #ffd630;
+}
+
+.transformed {
+	transform: scale3d(1, 1, 1) rotate3d(1, 0, 0, 31deg); /*this is standard syntax*/
+}
+
+#grid {
+	border-radius: 20px;
+	border: 5px solid #e6e6e6;
+	box-shadow: 0 70px 40px -20px rgba(0, 0, 0, 0.2);
+	width: max-content;
+	margin: 20px auto;
+}
+.rows {
+	display: flex;
+	width: max-content;
+}
+.columns {
+	height: 60px;
+	width: 60px;
+}
+.columns:hover {
+	background: orangered;
+}
+.rows:not(:last-child) {
+	border-bottom: 1px solid orange;
+}
+.columns:not(:last-child) {
+	border-right: 1px solid orange;
+}
