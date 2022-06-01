@@ -1,3 +1,0 @@
-# Todo
-
-  * Edit the README
