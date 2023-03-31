@@ -3,17 +3,15 @@
 	-moz-osx-font-smoothing: grayscale;
 }
 
-.div {
-	transform: perspective(600px) rotateX(35deg);
-	overflow: hidden;
-	background: #ffd630;
-}
-
 .transformed {
 	transform: scale3d(1, 1, 1) rotate3d(1, 0, 0, 31deg); /*this is standard syntax*/
 }
 
-#grid {
+#grid1 {
+	transform: perspective(600px) rotateX(35deg);
+	/* ======= */
+	overflow: hidden;
+	background: #ffd630;
 	border-radius: 20px;
 	border: 5px solid #e6e6e6;
 	box-shadow: 0 70px 40px -20px rgba(0, 0, 0, 0.2);
@@ -36,4 +34,29 @@
 }
 .columns:not(:last-child) {
 	border-right: 1px solid orange;
+}
+
+#scene {
+	height: 260px;
+	border: 1px solid;
+	display: grid;
+	place-items: center;
+	/* ====== */
+	perspective: 711px;
+}
+
+#grid2 {
+	width: max-content;
+	border: 1px solid;
+
+	background-image: repeating-conic-gradient(from 45deg, #111 0deg 90deg, #222 90deg 180deg);
+	background-size: 60px 60px;
+
+	transform-style: preserve-3d;
+	transform: rotateX(36deg) scale(1.03);
+
+	border-radius: 20px;
+	border: 5px solid #e6e6e6;
+	box-shadow: 0 70px 40px -20px rgba(0, 0, 0, 0.2);
+	overflow: hidden;
 }
